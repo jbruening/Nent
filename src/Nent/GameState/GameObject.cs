@@ -62,7 +62,7 @@ namespace Nent
 
         private bool _markedForDestruction;
         /// <summary>
-        /// Destroy this gameObject. THIS IS NOT NETWORKED SYNCED.
+        /// Destroy this GameObject
         /// </summary>
         /// <param name="gameObject"></param>
         public static void Destroy(GameObject gameObject)

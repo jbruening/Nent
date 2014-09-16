@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,35 +13,42 @@ namespace Nent
         /// The gameobject this is attached to. cached result.
         /// </summary>
         [YamlSerialize(YamlSerializeMethod.Never)]
-        public GameObject gameObject { get; internal set; }
+        public GameObject GameObject { get; internal set; }
+
+        #region coroutine
 
         /// <summary>
-        /// in order to actually start a coroutine chain, you need to set IsRootRoutine to true on the first call in a coroutine call chain.
+        /// Start a coroutine
+        /// Not thread safe.
         /// </summary>
         /// <param name="routine"></param>
         /// <returns></returns>
-        public Coroutine StartCoroutine(IEnumerator<YieldInstruction> routine)
+        public Coroutine StartCoroutine(IEnumerator routine)
         {
-            //if (IsRootRoutine)
-            //{
-            //    GameState.AddRoutine(routine);
-            //    rootRoutines.Add(routine);
-            //}
+            routine.MoveNext();
+            _shouldRunNextFrame.Add(routine);
             return new Coroutine(routine);
         }
-        
-        [YamlSerialize(YamlSerializeMethod.Never)]
-        internal List<IEnumerator<YieldInstruction>> rootRoutines = new List<IEnumerator<YieldInstruction>>();
+
+        List<IEnumerator> _unblockedCoroutines = new List<IEnumerator>();
+        List<IEnumerator> _shouldRunNextFrame = new List<IEnumerator>();
+
+        internal void RunCoroutines()
+        {
+            Coroutine.Run(ref _unblockedCoroutines, ref _shouldRunNextFrame);
+        }
+
+        #endregion
 
         /// <summary>
-        /// Get the first component on the gameObject of type T
+        /// Get the first component on the GameObject of type T
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public T GetComponent<T>()
             where T : Component
         {
-            return gameObject.GetComponent<T>();
+            return GameObject.GetComponent<T>();
         }
 
         /// <summary>
@@ -51,10 +59,15 @@ namespace Nent
         public T[] GetComponents<T>()
             where T : Component
         {
-            return gameObject.GetComponents<T>();
+            return GameObject.GetComponents<T>();
         }
 
-        internal void InternalAwakeCall() { try { Awake(); } catch (Exception e) { Debug.LogError(e.ToString()); } }
+        internal void InternalAwakeCall()
+        {
+            try { Awake(); } catch (Exception e) { Debug.LogError(e.ToString()); } 
+            //register to call start
+            GameObject.GameState.QueueStart(this);
+        }
         protected virtual void Awake() { }
         internal void InternalStartCall() { try { Start(); } catch (Exception e) { Debug.LogError(e.ToString()); } }
         protected virtual void Start() { }
@@ -73,14 +86,10 @@ namespace Nent
             { Disposing(); }
             catch (Exception e)
             {
-                Debug.LogError("[Disposing {0}] {1}", gameObject.Name, e);
+                Debug.LogError("[Disposing {0}] {1}", GameObject.Name, e);
             }
-            foreach (var routine in rootRoutines)
-            {
-                //GameState.RemoveRoutine(routine);
-            }
-
-            rootRoutines = null;
+            //help prevent bad use of the library from keeping the other components around.
+            GameObject = null;
         }
         /// <summary>
         /// The object is being deleted

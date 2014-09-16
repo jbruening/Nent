@@ -43,7 +43,7 @@ namespace Nent
         }
 
         /// <summary>
-        /// Get all the components of type T attached to the gameObject
+        /// Get all the components of type T attached to the GameObject
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -63,7 +63,7 @@ namespace Nent
                 return null;
             }
 
-            component.gameObject = this;
+            component.GameObject = this;
             components.Add(component);
             //GameState.AddStart(component.InternalStartCall);
             return component;
@@ -73,7 +73,7 @@ namespace Nent
         /// Attach the component of type T to the gameobject
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <returns>instance of T that was attached to the gameObject</returns>
+        /// <returns>instance of T that was attached to the GameObject</returns>
         public T AddComponent<T>()
             where T : Component
         {
@@ -86,7 +86,7 @@ namespace Nent
         }
 
         /// <summary>
-        /// Add a component of the specified type to the gameObject
+        /// Add a component of the specified type to the GameObject
         /// </summary>
         /// <param name="componentType">Must be an inheriting class of Component</param>
         /// <returns>instance of the component that was added</returns>
@@ -165,7 +165,7 @@ namespace Nent
             {
                 components.RemoveAt(ind);
                 target.Dispose();
-                target.gameObject = null;
+                target.GameObject = null;
             }
         }
     }

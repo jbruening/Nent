@@ -13,6 +13,6 @@ namespace Nent
         /// <summary>
         /// If the coroutine has finished
         /// </summary>
-        public abstract bool IsDone { get; }
+        public abstract bool IsDone();
     }
 }

@@ -14,8 +14,15 @@ namespace Nent
         private Thread _createdThread;
         bool _quit = true;
         private double _frameTime;
-        private Queue<Action> _invokeQueue = new Queue<Action>();
+        private readonly Queue<Action> _invokeQueue = new Queue<Action>();
         private readonly object _invokeLocker = new object();
+        private readonly Queue<Component> _queuedStarts = new Queue<Component>();
+
+        public IEnumerable<GameObject> GameObjects
+        {
+            get { return _gameObjects; }
+        }
+        private GameObject[] _gameObjects;
 
         /// <summary>
         /// whether or not the current thread is the same thread as what the game state is running on
@@ -50,7 +57,7 @@ namespace Nent
 
             while (!_quit)
             {
-                if (_watch.Elapsed.TotalSeconds - TimeSinceStartup > _frameTime)
+                if (_watch.Elapsed.TotalSeconds - TimeSinceStartup >= _frameTime)
                     Loop();
                 Thread.Sleep(LoopTightness);
             }
@@ -63,6 +70,11 @@ namespace Nent
         {
             PreviousFrameTime = TimeSinceStartup;
             TimeSinceStartup = _watch.Elapsed.TotalSeconds;
+            while (_queuedStarts.Count > 0)
+            {
+                _queuedStarts.Dequeue().InternalStartCall();
+            }
+
             try
             {
                 PreUpdate.Raise();
@@ -96,13 +108,23 @@ namespace Nent
             {
                 Debug.LogError("[Room.LateUpdate] {0}", e);
             }
-        }
 
-        public IEnumerable<GameObject> GameObjects
-        {
-            get { return _gameObjects; }
+            lock (_invokeLocker)
+            {
+                while (_invokeQueue.Count > 0)
+                {
+                    var act = _invokeQueue.Dequeue();
+                    try
+                    {
+                        act();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("[Invoke Queued] {0}", e);
+                    }
+                }
+            }
         }
-        private GameObject[] _gameObjects;
 
         /// <summary>
         /// Run an action on the gamestate's thread, next update
@@ -150,6 +172,7 @@ namespace Nent
             }
 
             ret.Id = id;
+            _gameObjects[id] = ret;
             return ret;
         }
 
@@ -157,6 +180,8 @@ namespace Nent
         {
             if (InvokeRequired)
                 throw new ThreadStateException("Cannot destroy gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
+
+            _gameObjects[gameObject.Id] = null;
 
             int remC = 0;
             for (int i = _gameObjects.Length - 1; i >= 0; i--)
@@ -179,6 +204,11 @@ namespace Nent
         public void Stop()
         {
             _quit = true;
+        }
+
+        public void QueueStart(Component component)
+        {
+            _queuedStarts.Enqueue(component);
         }
     }
 }
