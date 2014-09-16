@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,17 +11,18 @@ namespace NentUnitTests
 {
     class Helper
     {
-        public static void WaitUntil(Func<bool> func, double waitTime = 2000)
+        public static void WaitUntil(Func<bool> func, double waitTime = 2)
         {
-            double counter = 0;
+            var timer = new Stopwatch();
+            waitTime *= 1000;
+            timer.Start();
             while (!func())
             {
-                if (counter >= waitTime)
+                if (timer.ElapsedMilliseconds >= waitTime)
                 {
                     Assert.Fail("Timed out");
                 }
                 Thread.Sleep(10);
-                counter += 10;
             }
         }
     }

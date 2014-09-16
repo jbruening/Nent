@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Yaml.Serialization;
+using JetBrains.Annotations;
 
 namespace Nent
 {

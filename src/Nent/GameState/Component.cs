@@ -14,6 +14,8 @@ namespace Nent
         /// </summary>
         [YamlSerialize(YamlSerializeMethod.Never)]
         public GameObject GameObject { get; internal set; }
+        [YamlSerialize(YamlSerializeMethod.Never)]
+        public GameState GameState { get { return GameObject.GameState; } }
 
         #region coroutine
 

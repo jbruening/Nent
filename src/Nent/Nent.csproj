@@ -32,17 +32,14 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="YamlSerializer">
       <HintPath>..\..\lib\YamlSerializer.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Coroutine\Coroutine.cs" />
+    <Compile Include="Coroutine\WaitForSeconds.cs" />
     <Compile Include="Coroutine\YieldInstruction.cs" />
     <Compile Include="Debug\Debug.cs" />
     <Compile Include="Debug\DefaultConsoleLogger.cs" />

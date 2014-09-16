@@ -57,19 +57,22 @@ namespace Nent
 
             while (!_quit)
             {
-                if (_watch.Elapsed.TotalSeconds - TimeSinceStartup >= _frameTime)
+                if (_watch.Elapsed.TotalSeconds - Time >= _frameTime)
                     Loop();
                 Thread.Sleep(LoopTightness);
             }
         }
 
-        internal double TimeSinceStartup { get; private set; }
+        public double Time { get; private set; }
+        public double DeltaTime { get; private set; }
         internal double PreviousFrameTime { get; private set; }
 
         private void Loop()
         {
-            PreviousFrameTime = TimeSinceStartup;
-            TimeSinceStartup = _watch.Elapsed.TotalSeconds;
+            PreviousFrameTime = Time;
+            Time = _watch.Elapsed.TotalSeconds;
+            DeltaTime = Time - PreviousFrameTime;
+
             while (_queuedStarts.Count > 0)
             {
                 _queuedStarts.Dequeue().InternalStartCall();
@@ -92,6 +95,13 @@ namespace Nent
             }
 
             Update.Raise();
+
+// ReSharper disable once ForCanBeConvertedToForeach
+            for (int i = 0; i < _gameObjects.Length; i++)
+            {
+                if (_gameObjects[i] == null) continue;
+                _gameObjects[i].RunCoroutines();
+            }
 
 // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < _gameObjects.Length; i++)
