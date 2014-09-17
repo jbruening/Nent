@@ -36,7 +36,7 @@ namespace Nent
                         {
                             sb.AppendLine(type.ToString());
                         }
-                        Debug.LogError("Resources GetComponentTypes failed for the following types: {0}", sb.ToString());
+                        Debug.LogError("Resources GetComponentTypes failed for the following types: {0}", sb);
                     }
                 }
             }
