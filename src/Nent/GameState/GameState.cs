@@ -18,6 +18,9 @@ namespace Nent
         private readonly object _invokeLocker = new object();
         private readonly Queue<Component> _queuedStarts = new Queue<Component>();
 
+        /// <summary>
+        /// all the gameobjects. Warning: some of the values will be null. You need to check for that before using them.
+        /// </summary>
         public IEnumerable<GameObject> GameObjects
         {
             get { return _gameObjects; }
