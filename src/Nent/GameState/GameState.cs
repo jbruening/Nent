@@ -26,6 +26,7 @@ namespace Nent
             get { return _gameObjects; }
         }
         private GameObject[] _gameObjects;
+        private IStateContainer _container;
 
         /// <summary>
         /// whether or not the current thread is the same thread as what the game state is running on
@@ -223,5 +224,30 @@ namespace Nent
         {
             _queuedStarts.Enqueue(component);
         }
+
+        /// <summary>
+        /// set the container to be returned by Container`T()
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="container"></param>
+        public void SetContainer<T>(T container) where T : IStateContainer
+        {
+            _container = container;
+        }
+
+        /// <summary>
+        /// get the value set by SetContainer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Container<T>() where T : IStateContainer
+        {
+            return (T) _container;
+        }
+    }
+
+    public interface IStateContainer
+    {
+        GameState State { get; }
     }
 }
