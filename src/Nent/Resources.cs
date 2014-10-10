@@ -74,6 +74,24 @@ namespace Nent
                 //be returning an object we've already created, the AddComponent will work properly
                 return dser;
             });
+
+            config.AddActivator<Component>(() =>
+            {
+                throw new TypeLoadException(
+                    "Attempted to create a Nent.Component in " + filePath + ", but that's not allowed. Did you declare your yaml correctly?");
+            });
+
+            config.TypeResolutionError += (yamlConfig, type, arg3) =>
+            {
+                if (type == typeof (Component))
+                {
+                    throw new TypeLoadException("Could not find the component type " + arg3.Substring(1) + ". You might have your yaml declared incorrectly, or this is an undefined type");
+                }
+                else
+                {
+                    Debug.LogError("Yaml type resolution error. Expecting " + type + " for tag " + arg3);
+                }
+            };
             
             foreach (Type t in GetComponentTypes())
             {
