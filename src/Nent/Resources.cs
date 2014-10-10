@@ -87,10 +87,6 @@ namespace Nent
                 {
                     throw new TypeLoadException("Could not find the component type " + arg3.Substring(1) + ". You might have your yaml declared incorrectly, or this is an undefined type");
                 }
-                else
-                {
-                    Debug.LogError("Yaml type resolution error. Expecting " + type + " for tag " + arg3);
-                }
             };
             
             foreach (Type t in GetComponentTypes())
