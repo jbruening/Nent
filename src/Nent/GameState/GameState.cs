@@ -91,27 +91,24 @@ namespace Nent
                 Debug.LogError("[Room.PreUpdate] {0}", e);
             }
 
-// ReSharper disable once ForCanBeConvertedToForeach
-            for (int i = 0; i < _gameObjects.Length; i++)
+            foreach (GameObject t in _gameObjects)
             {
-                if (_gameObjects[i] == null) continue;
-                _gameObjects[i].Update();
+                if (t == null) continue;
+                t.Update();
             }
 
             Update.Raise();
 
-// ReSharper disable once ForCanBeConvertedToForeach
-            for (int i = 0; i < _gameObjects.Length; i++)
+            foreach (GameObject t in _gameObjects)
             {
-                if (_gameObjects[i] == null) continue;
-                _gameObjects[i].RunCoroutines();
+                if (t == null) continue;
+                t.RunCoroutines();
             }
 
-// ReSharper disable once ForCanBeConvertedToForeach
-            for (int i = 0; i < _gameObjects.Length; i++)
+            foreach (GameObject t in _gameObjects)
             {
-                if (_gameObjects[i] == null) continue;
-                _gameObjects[i].LateUpdate();
+                if (t == null) continue;
+                t.LateUpdate();
             }
 
             try
@@ -123,21 +120,33 @@ namespace Nent
                 Debug.LogError("[Room.LateUpdate] {0}", e);
             }
 
+
+            Action[] invokes;
             lock (_invokeLocker)
             {
-                while (_invokeQueue.Count > 0)
+                invokes = _invokeQueue.ToArray();
+                _invokeQueue.Clear();
+            }
+
+            foreach (var act in invokes)
+            {
+                try
                 {
-                    var act = _invokeQueue.Dequeue();
-                    try
-                    {
-                        act();
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError("[Invoke Queued] {0}", e);
-                    }
+                    act();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[Invoke Queued] {0}", e);
                 }
             }
+
+// ReSharper disable once ForCanBeConvertedToForeach for loop is faster with lists...
+            for (var i = 0; i < _gameObjectsToCleanup.Count; i++)
+            {
+                var g = _gameObjectsToCleanup[i];
+                g.DestroyNow();
+            }
+            _gameObjectsToCleanup.Clear();
         }
 
         /// <summary>
@@ -168,7 +177,6 @@ namespace Nent
         {
             if (InvokeRequired)
                 throw new ThreadStateException("Cannot make gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
-            var ret = new GameObject(this);
             int id = -1;
             for (int i = 0; i < _gameObjects.Length; i++)
             {
@@ -185,9 +193,8 @@ namespace Nent
                 id = _gameObjects.Length - 1;
             }
 
-            ret.Id = id;
-            _gameObjects[id] = ret;
-            return ret;
+            _gameObjects[id] = new GameObject(this, id);
+            return _gameObjects[id];
         }
 
         internal void RemoveObject(GameObject gameObject)
@@ -195,7 +202,15 @@ namespace Nent
             if (InvokeRequired)
                 throw new ThreadStateException("Cannot destroy gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
 
+            if (gameObject.Id == -1)
+            {
+                Debug.LogWarning("Attempted to destroy {0}, which is already pending destruction", gameObject);
+                return;
+            }
+
+            _gameObjectsToCleanup.Add(_gameObjects[gameObject.Id]);
             _gameObjects[gameObject.Id] = null;
+            gameObject.Id = -1;
 
             int remC = 0;
             for (int i = _gameObjects.Length - 1; i >= 0; i--)
@@ -210,6 +225,8 @@ namespace Nent
                 Array.Resize(ref _gameObjects, _gameObjects.Length - remC);
             }
         }
+
+        private readonly List<GameObject> _gameObjectsToCleanup = new List<GameObject>();
 
         internal event Action PreUpdate;
         public event Action Update;

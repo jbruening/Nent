@@ -9,13 +9,14 @@ namespace Nent
 {
     public sealed partial class GameObject
     {
+        [YamlSerialize(YamlSerializeMethod.Never)]
         public readonly GameState GameState;
         /// <summary>
         /// create a new game object
         /// </summary>
-        internal GameObject(GameState gameState)
+        internal GameObject(GameState gameState, int id)
         {
-            Id = -1;
+            Id = id;
             GameState = gameState;
         }
 
@@ -62,22 +63,37 @@ namespace Nent
 
         private bool _markedForDestruction;
         /// <summary>
-        /// Destroy this GameObject
+        /// Destroy the specified GameObject
         /// </summary>
         /// <param name="gameObject"></param>
         public static void Destroy(GameObject gameObject)
         {
+            gameObject.Destroy();
+        }
+
+        /// <summary>
+        /// Destroy this GameObject
+        /// </summary>
+        public void Destroy()
+        {
             //prevent destroy from being called on a gameobject multiple times enqueing
-            if (gameObject._markedForDestruction) return;
-            gameObject._markedForDestruction = true;
-            gameObject.GameState.RemoveObject(gameObject);
+            if (_markedForDestruction) return;
+            _markedForDestruction = true;
+            GameState.RemoveObject(this);
         }
 
         internal void DestroyNow()
         {
             _markedForDestruction = true; //just in case
             OnDestroy();
-            components.ForEach(g => g.Dispose());
+            try
+            {
+                components.ForEach(g => g.Dispose());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error disposing {0}: {1}", this, e);
+            }
             components = null;
             IsDisposed = true;
         }
@@ -99,7 +115,7 @@ namespace Nent
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Name))
-                return "PnetS.GameObject";
+                return "PnetR.GameObject";
             return "GameObject " + Name;
         }
 
