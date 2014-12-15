@@ -88,7 +88,7 @@ namespace Nent
             }
             catch (Exception e)
             {
-                Debug.LogError("[Room.PreUpdate] {0}", e);
+                Debug.LogError("[GameState.PreUpdate] {0}", e);
             }
 
             foreach (GameObject t in _gameObjects)
@@ -97,7 +97,14 @@ namespace Nent
                 t.Update();
             }
 
-            Update.Raise();
+            try
+            {
+                Update.Raise();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[GameState.Update] {0}", e);
+            }
 
             foreach (GameObject t in _gameObjects)
             {
@@ -117,7 +124,7 @@ namespace Nent
             }
             catch (Exception e)
             {
-                Debug.LogError("[Room.LateUpdate] {0}", e);
+                Debug.LogError("[GameState.LateUpdate] {0}", e);
             }
 
 
