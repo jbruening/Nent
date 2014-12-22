@@ -115,7 +115,7 @@ namespace Nent
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Name))
-                return "PnetR.GameObject";
+                return "Nent.GameObject";
             return "GameObject " + Name;
         }
 
