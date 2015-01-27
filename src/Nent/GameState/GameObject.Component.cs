@@ -166,7 +166,6 @@ namespace Nent
             {
                 components.RemoveAt(ind);
                 target.Dispose();
-                target.GameObject = null;
             }
         }
     }

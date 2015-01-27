@@ -13,7 +13,16 @@ namespace Nent
         /// The gameobject this is attached to. cached result.
         /// </summary>
         [YamlSerialize(YamlSerializeMethod.Never)]
-        public GameObject GameObject { get; internal set; }
+        public GameObject GameObject
+        {
+            get
+            {
+                if (_gameObject == null) throw new ObjectDisposedException(GetType().Name);
+                return _gameObject;
+            }
+            internal set { _gameObject = value; }
+        }
+
         [YamlSerialize(YamlSerializeMethod.Never)]
         public GameState GameState { get { return GameObject.GameState; } }
 
@@ -34,6 +43,7 @@ namespace Nent
 
         List<IEnumerator> _unblockedCoroutines = new List<IEnumerator>();
         List<IEnumerator> _shouldRunNextFrame = new List<IEnumerator>();
+        private GameObject _gameObject;
 
         internal void RunCoroutines()
         {
