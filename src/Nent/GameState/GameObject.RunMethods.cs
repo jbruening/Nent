@@ -57,7 +57,7 @@ namespace Nent
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("[RunCoroutine {0}] {1}", Name, e);
+                    Debug.LogException(e, "RunCoroutine {0}", Name);
                 }
             }
         }

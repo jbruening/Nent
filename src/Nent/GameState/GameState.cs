@@ -88,7 +88,7 @@ namespace Nent
             }
             catch (Exception e)
             {
-                Debug.LogError("[GameState.PreUpdate] {0}", e);
+                Debug.LogException(e, "GameState.PreUpdate");
             }
 
             foreach (GameObject t in _gameObjects)
@@ -103,7 +103,7 @@ namespace Nent
             }
             catch (Exception e)
             {
-                Debug.LogError("[GameState.Update] {0}", e);
+                Debug.LogException(e, "GameState.Update");
             }
 
             foreach (GameObject t in _gameObjects)
@@ -124,7 +124,7 @@ namespace Nent
             }
             catch (Exception e)
             {
-                Debug.LogError("[GameState.LateUpdate] {0}", e);
+                Debug.LogException(e, "GameState.LateUpdate");
             }
 
 
@@ -143,7 +143,7 @@ namespace Nent
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("[Invoke Queued] {0}", e);
+                    Debug.LogException(e, "Invoke Queued");
                 }
             }
 
@@ -180,6 +180,13 @@ namespace Nent
                 action();
         }
 
+        /// <summary>
+        /// Creates a new gameobject
+        /// </summary>
+        /// <returns>a new gameobject</returns>
+        /// <exception cref="ThreadStateException">
+        /// if this function is not run on the gamestate thread.
+        /// </exception>
         public GameObject CreateNewGameObject()
         {
             if (InvokeRequired)

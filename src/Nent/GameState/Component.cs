@@ -12,6 +12,9 @@ namespace Nent
         /// <summary>
         /// The gameobject this is attached to. cached result.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">
+        /// if the gameobject has been destroyed
+        /// </exception>
         [YamlSerialize(YamlSerializeMethod.Never)]
         public GameObject GameObject
         {
@@ -76,20 +79,21 @@ namespace Nent
 
         internal void InternalAwakeCall()
         {
-            try { Awake(); } catch (Exception e) { Debug.LogError(e.ToString()); } 
+            try { Awake(); }
+            catch (Exception e) { Debug.LogException(e); } 
             //register to call start
             GameObject.GameState.QueueStart(this);
         }
         protected virtual void Awake() { }
-        internal void InternalStartCall() { try { Start(); } catch (Exception e) { Debug.LogError(e.ToString()); } }
+        internal void InternalStartCall() { try { Start(); } catch (Exception e) { Debug.LogException(e); } }
         protected virtual void Start() { }
-        internal void InternalUpdateCall() { try { Update(); } catch (Exception e) { Debug.LogError(e.ToString()); } }
+        internal void InternalUpdateCall() { try { Update(); } catch (Exception e) { Debug.LogException(e); } }
         protected virtual void Update() { }
-        internal void InternalLateUpdateCall() { try { LateUpdate(); } catch (Exception e) { Debug.LogError(e.ToString()); } }
+        internal void InternalLateUpdateCall() { try { LateUpdate(); } catch (Exception e) { Debug.LogException(e); } }
         protected virtual void LateUpdate() { }
-        internal void InternalOnComponentAddedCall(Component component) { try { OnComponentAdded(component); } catch (Exception e) { Debug.LogError(e.ToString()); } }
+        internal void InternalOnComponentAddedCall(Component component) { try { OnComponentAdded(component); } catch (Exception e) { Debug.LogException(e); } }
         protected virtual void OnComponentAdded(Component component) { }
-        internal void InternalOnDestroyCall() { try { OnDestroy(); } catch (Exception e) { Debug.LogError(e.ToString()); } }
+        internal void InternalOnDestroyCall() { try { OnDestroy(); } catch (Exception e) { Debug.LogException(e); } }
         protected virtual void OnDestroy() { }
 
         internal void Dispose()
@@ -98,7 +102,7 @@ namespace Nent
             { Disposing(); }
             catch (Exception e)
             {
-                Debug.LogError("[Disposing {0}] {1}", GameObject.Name, e);
+                Debug.LogException(e, "Disposing {0}", GameObject.Name);
             }
             //help prevent bad use of the library from keeping the other components around.
             GameObject = null;

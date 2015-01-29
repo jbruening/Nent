@@ -92,7 +92,7 @@ namespace Nent
             }
             catch (Exception e)
             {
-                Debug.LogError("Error disposing {0}: {1}", this, e);
+                Debug.LogException(e, "Error disposing {0}", this);
             }
             components = null;
             IsDisposed = true;
