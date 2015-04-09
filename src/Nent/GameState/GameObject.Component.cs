@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Yaml.Serialization;
 using JetBrains.Annotations;
 
@@ -56,6 +57,9 @@ namespace Nent
 
         private Component InitialAddComponent(Type componentType)
         {
+            if (GameState.InvokeRequired)
+                throw new ThreadStateException("Cannot add components not on the gamestate thread. Use GameState.InvokeIfRequired.");
+
             var component = Activator.CreateInstance(componentType) as Component;
 
             if (component == null)
@@ -160,6 +164,9 @@ namespace Nent
         /// <param name="target"></param>
         public void RemoveComponent(Component target)
         {
+            if (GameState.InvokeRequired)
+                throw new ThreadStateException("Cannot add components not on the gamestate thread. Use GameState.InvokeIfRequired.");
+
             var ind = components.FindIndex(c => object.ReferenceEquals(c, target));
 
             if (ind != -1)
