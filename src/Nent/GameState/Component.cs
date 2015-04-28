@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Yaml.Serialization;
@@ -28,6 +29,12 @@ namespace Nent
 
         [YamlSerialize(YamlSerializeMethod.Never)]
         public GameState GameState { get { return GameObject.GameState; } }
+
+        /// <summary>
+        /// safely get the gameobject's name, instead of having to worry about an error
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public string SafeGameObjectName { get { return _gameObject == null ? "OBJECT_DISPOSED" : _gameObject.Name; } }
 
         #region coroutine
 
@@ -80,20 +87,20 @@ namespace Nent
         internal void InternalAwakeCall()
         {
             try { Awake(); }
-            catch (Exception e) { Debug.LogException(e); } 
+            catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } 
             //register to call start
             GameObject.GameState.QueueStart(this);
         }
         protected virtual void Awake() { }
-        internal void InternalStartCall() { try { Start(); } catch (Exception e) { Debug.LogException(e); } }
+        internal void InternalStartCall() { try { Start(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void Start() { }
-        internal void InternalUpdateCall() { try { Update(); } catch (Exception e) { Debug.LogException(e); } }
+        internal void InternalUpdateCall() { try { Update(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void Update() { }
-        internal void InternalLateUpdateCall() { try { LateUpdate(); } catch (Exception e) { Debug.LogException(e); } }
+        internal void InternalLateUpdateCall() { try { LateUpdate(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void LateUpdate() { }
-        internal void InternalOnComponentAddedCall(Component component) { try { OnComponentAdded(component); } catch (Exception e) { Debug.LogException(e); } }
+        internal void InternalOnComponentAddedCall(Component component) { try { OnComponentAdded(component); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void OnComponentAdded(Component component) { }
-        internal void InternalOnDestroyCall() { try { OnDestroy(); } catch (Exception e) { Debug.LogException(e); } }
+        internal void InternalOnDestroyCall() { try { OnDestroy(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void OnDestroy() { }
 
         internal void Dispose()
@@ -102,7 +109,7 @@ namespace Nent
             { Disposing(); }
             catch (Exception e)
             {
-                Debug.LogException(e, "Disposing {0}", GameObject.Name);
+                Debug.LogException(e, "Disposing {0}", SafeGameObjectName);
             }
             //help prevent bad use of the library from keeping the other components around.
             GameObject = null;
