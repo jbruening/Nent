@@ -38,5 +38,10 @@ namespace NentUnitTests
         {
             Assert.Fail(info, args);
         }
+
+        public void Exception(Exception exception, string info, params object[] args)
+        {
+            Assert.Fail("{0} {1}", exception, string.Format(info, args));
+        }
     }
 }
