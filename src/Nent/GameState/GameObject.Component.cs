@@ -55,6 +55,11 @@ namespace Nent
             return components.OfType<T>().ToArray();
         }
 
+        public Component[] GetComponents(Type t)
+        {
+            return components.Where(t.IsInstanceOfType).ToArray();
+        }
+
         private Component InitialAddComponent(Type componentType)
         {
             if (GameState.InvokeRequired)
