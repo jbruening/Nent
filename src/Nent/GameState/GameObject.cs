@@ -40,7 +40,7 @@ namespace Nent
         public string Resource
         {
             get { return _resource; }
-            internal set { _resource = value; }
+            set { _resource = value; }
         }
         /// <summary>
         /// world position

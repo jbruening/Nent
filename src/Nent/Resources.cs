@@ -56,18 +56,18 @@ namespace Nent
         /// <summary>
         /// Load a gameobject from a file
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="filePath">The path to the file. If the supplied file path is not rooted, then it will be resolved as ResourceFolder\filePath.prefab</param>
         /// <param name="state">state that the gameobject will be in</param>
         /// <param name="position"> </param>
         /// <param name="rotation"> </param>
-        /// <param name="visibleToAll">makes all players in the room subscribed to the object</param>
         /// <returns></returns>
-        public static GameObject Load(string filePath, GameState state, Vector3? position = null, Quaternion? rotation = null, bool visibleToAll = true)
+        public static GameObject Load(string filePath, GameState state, Vector3? position = null, Quaternion? rotation = null)
         {
             var dser = state.CreateNewGameObject();
             var awakes = new List<Component>();
             var config = new YamlConfig();
-            var actualFilePath = Path.Combine(ResourceFolder, filePath + ".prefab");
+
+            string actualFilePath = Path.IsPathRooted(filePath) ? filePath : Path.Combine(ResourceFolder, filePath + ".prefab");
 
             config.AddActivator<GameObject>(() =>
             {
