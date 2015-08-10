@@ -100,3 +100,5 @@ FakesAssemblies/
 #other
 lib/
 .svn
+
+!/src/Nent/Debug/
