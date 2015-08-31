@@ -31,7 +31,14 @@ namespace Nent
             if (components == null)
                 return null;
 
-            return components.OfType<T>().FirstOrDefault();
+// ReSharper disable once ForCanBeConvertedToForeach - speed is necessary
+            for (int i = 0; i < components.Count; i++)
+            {
+                var component = components[i];
+                var unknown = component as T;
+                if (unknown != null) return unknown;
+            }
+            return null;
         }
 
         /// <summary>
@@ -41,7 +48,13 @@ namespace Nent
         /// <returns></returns>
         public Component GetComponent(Type t)
         {
-            return (from c in components where c.GetType().IsSubclassOf(t) select c).FirstOrDefault();
+// ReSharper disable once ForCanBeConvertedToForeach - speed is necessary
+            for (int i = 0; i < components.Count; i++)
+            {
+                var c = components[i];
+                if (c.GetType().IsSubclassOf(t)) return c;
+            }
+            return null;
         }
 
         /// <summary>
@@ -52,12 +65,32 @@ namespace Nent
         public T[] GetComponents<T>()
             where T : class
         {
-            return components.OfType<T>().ToArray();
+            var list = new List<T>();
+// ReSharper disable once ForCanBeConvertedToForeach - speed is necessary
+            for (int i = 0; i < components.Count; i++)
+            {
+                var component = components[i];
+                var unknown = component as T;
+                if (unknown != null) list.Add(unknown);
+            }
+            return list.ToArray();
         }
 
+        /// <summary>
+        /// Get all the components of the specified type attached to the GameObject
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public Component[] GetComponents(Type t)
         {
-            return components.Where(t.IsInstanceOfType).ToArray();
+            var list = new List<Component>();
+// ReSharper disable once ForCanBeConvertedToForeach - speed is necessary
+            for (int i = 0; i < components.Count; i++)
+            {
+                var component = components[i];
+                if (t.IsInstanceOfType(component)) list.Add(component);
+            }
+            return list.ToArray();
         }
 
         private Component InitialAddComponent(Type componentType)
@@ -69,7 +102,7 @@ namespace Nent
 
             if (component == null)
             {
-                Debug.LogError("Could not add component of type {0}", componentType.Name);
+                Debug.LogError("Could not add component of type {0}. Does it have a parameterless contructor?", componentType.Name);
                 return null;
             }
 
