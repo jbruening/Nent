@@ -42,24 +42,94 @@ namespace Nent
             get { return _resource; }
             set { _resource = value; }
         }
+
+        private Vector3 _position;
+        private Quaternion _rotation;
+        private Matrix _rotationMatrix;
+        private Matrix _matrix;
+        private Matrix _inverseMatrix;
+
         /// <summary>
         /// world position
         /// </summary>
-        public Vector3 Position { get; set; }
+        public Vector3 Position
+        {
+            get { return _position; }
+            set
+            {
+                _position = value;
+                UpdatePosition();
+            }
+        }
+
         /// <summary>
         /// world rotation
         /// </summary>
-        public Quaternion Rotation { get; set; }
+        public Quaternion Rotation
+        {
+            get { return _rotation; }
+            set
+            {
+                _rotation = value;
+                UpdateRotation();
+            }
+        }
+
         /// <summary>
         /// localized forward
         /// </summary>
-        public Vector3 Forward { get { return Rotation.Multiply(Vector3.UnitZ); } }
+        public Vector3 Forward { get; private set; }
 
         /// <summary>
         /// localized right
         /// </summary>
-        public Vector3 Right { get { return Rotation.Multiply(Vector3.UnitX); } }
+        public Vector3 Right { get; private set; }
 
+        /// <summary>
+        /// local -> global matrix
+        /// </summary>
+        public Matrix Matrix
+        {
+            get { return _matrix; }
+        }
+
+        /// <summary>
+        /// global -> local matrix
+        /// </summary>
+        public Matrix InverseMatrix
+        {
+            get { return _inverseMatrix; }
+        }
+
+        /// <summary>
+        /// local -> global rotation matrix
+        /// </summary>
+        public Matrix RotationMatrix
+        {
+            get { return _rotationMatrix; }
+        }
+
+        void UpdatePosition()
+        {
+            UpdateMatrices();
+        }
+
+        void UpdateRotation()
+        {
+            Matrix.RotationQuaternion(ref _rotation, out _rotationMatrix);
+            //todo: is this correct/faster/slower compared to TransformNormal(_rotationMatrix)?
+            Forward = _rotation.Multiply(Vector3.UnitZ);
+            Right = _rotation.Multiply(Vector3.UnitX);
+            
+            UpdateMatrices();
+        }
+
+        void UpdateMatrices()
+        {
+            Matrix.Translation(ref _position, out _matrix);
+            _matrix = _rotationMatrix * _matrix;
+            _inverseMatrix = Matrix.Translation(-_position) * Matrix.Transpose(_rotationMatrix);
+        }
 
         private bool _markedForDestruction;
         /// <summary>
