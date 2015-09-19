@@ -209,6 +209,8 @@ namespace Nent
 
             if (ind != -1)
             {
+                var c = components[ind];
+                GameState.UnsubscribeComponent(c, this);
                 components.RemoveAt(ind);
                 target.Dispose();
             }

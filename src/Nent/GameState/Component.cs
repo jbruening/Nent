@@ -94,9 +94,7 @@ namespace Nent
         protected virtual void Awake() { }
         internal void InternalStartCall() { try { Start(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void Start() { }
-        internal void InternalUpdateCall() { try { Update(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void Update() { }
-        internal void InternalLateUpdateCall() { try { LateUpdate(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void LateUpdate() { }
         internal void InternalOnComponentAddedCall(Component component) { try { OnComponentAdded(component); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void OnComponentAdded(Component component) { }

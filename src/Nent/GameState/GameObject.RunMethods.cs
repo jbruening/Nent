@@ -12,23 +12,6 @@ namespace Nent
     /// </summary>
     public sealed partial class GameObject
     {
-        internal void Update()
-        {
-
-            for (var i = 0; i < components.Count; i++)
-            {
-                components[i].InternalUpdateCall();
-            }
-        }
-
-        internal void LateUpdate()
-        {
-            for (var i = 0; i < components.Count; i++)
-            {
-                components[i].InternalLateUpdateCall();
-            }
-        }
-
         internal void OnComponentAdded(Component component)
         {
             for (int i = 0; i < components.Count; i++)
@@ -36,6 +19,8 @@ namespace Nent
                 if (!object.ReferenceEquals(components[i], component))
                     components[i].InternalOnComponentAddedCall(component);
             }
+
+            GameState.SubscribeComponent(component, this);
         }
 
         internal void OnDestroy()

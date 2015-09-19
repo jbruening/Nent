@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Collections.Generic;
 
@@ -27,6 +28,16 @@ namespace Nent
         }
         private GameObject[] _gameObjects;
         private IStateContainer _container;
+
+        private struct GobjCaller
+        {
+            public Component Component;
+            public GameObject Object;
+            public Action Method;
+        }
+
+        private List<GobjCaller> _gUpdates = new List<GobjCaller>(32);
+        private List<GobjCaller> _gLUpdates = new List<GobjCaller>(32);
 
         /// <summary>
         /// whether or not the current thread is the same thread as what the game state is running on
@@ -91,10 +102,17 @@ namespace Nent
                 Debug.LogException(e, "GameState.PreUpdate");
             }
 
-            foreach (GameObject t in _gameObjects)
+// ReSharper disable once ForCanBeConvertedToForeach for is faster with lists
+            for (int i = 0; i < _gUpdates.Count; i++)
             {
-                if (t == null) continue;
-                t.Update();
+                try
+                {
+                    _gUpdates[i].Method();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, "Object {0}", _gUpdates[i].Object.Name);
+                }
             }
 
             try
@@ -112,10 +130,17 @@ namespace Nent
                 t.RunCoroutines();
             }
 
-            foreach (GameObject t in _gameObjects)
+// ReSharper disable once ForCanBeConvertedToForeach for is faster with lists
+            for (int i = 0; i < _gLUpdates.Count; i++)
             {
-                if (t == null) continue;
-                t.LateUpdate();
+                try
+                {
+                    _gLUpdates[i].Method();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, "Object {0}", _gLUpdates[i].Object.Name);
+                }
             }
 
             try
@@ -238,9 +263,49 @@ namespace Nent
             {
                 Array.Resize(ref _gameObjects, _gameObjects.Length - remC);
             }
+
+            _gUpdates.RemoveAll(g => g.Object == gameObject);
+            _gLUpdates.RemoveAll(g => g.Object == gameObject);
         }
 
         private readonly List<GameObject> _gameObjectsToCleanup = new List<GameObject>();
+
+        internal void SubscribeComponent(Component component, GameObject sender)
+        {
+            var ctype = component.GetType();
+
+            var uinfo = ctype
+                .GetMethod("Update", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic);
+            if (uinfo == null) return;
+            if (uinfo.DeclaringType == ctype)
+            {
+                _gUpdates.Add(new GobjCaller
+                {
+                    Method = Delegate.CreateDelegate(typeof(Action), component, uinfo) as Action,
+                    Object = sender,
+                    Component = component
+                });
+            }
+
+            var luinfo = ctype
+                .GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic);
+            if (luinfo == null) return;
+            if (luinfo.DeclaringType == ctype)
+            {
+                _gLUpdates.Add(new GobjCaller
+                {
+                    Method = Delegate.CreateDelegate(typeof(Action), component, uinfo) as Action,
+                    Object = sender,
+                    Component = component
+                });
+            }
+        }
+
+        internal void UnsubscribeComponent(Component component, GameObject sender)
+        {
+            _gUpdates.RemoveAll(g => g.Object == sender && g.Component == component);
+            _gLUpdates.RemoveAll(g => g.Object == sender && g.Component == component);
+        }
 
         internal event Action PreUpdate;
         public event Action Update;
