@@ -55,6 +55,21 @@ namespace NentUnitTests
             Helper.WaitUntil(() => test.AfterStuff, 5);
         }
 
+        [TestMethod]
+        public void DestroyTest()
+        {
+            GameObject gobj = null;
+            _state.InvokeIfRequired(() => gobj = _state.CreateNewGameObject());
+            Helper.WaitUntil(() => gobj != null);
+            
+            var test = Helper.AddInvoke<TestComponent>(gobj);
+
+            _state.InvokeIfRequired(() => gobj.Destroy());
+            Helper.WaitUntil(() => gobj.IsDisposed);
+            test.LateUpdateCalled = false;
+            Helper.Ensure(() => !test.LateUpdateCalled);
+        }
+
         class TestComponent : Component
         {
             private bool _awakeCalled;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Collections.Generic;
+using Nent.Extensions;
 
 namespace Nent
 {
@@ -36,8 +37,8 @@ namespace Nent
             public Action Method;
         }
 
-        private List<GobjCaller> _gUpdates = new List<GobjCaller>(32);
-        private List<GobjCaller> _gLUpdates = new List<GobjCaller>(32);
+        private GobjCaller[] _gUpdates = new GobjCaller[0];
+        private GobjCaller[] _gLUpdates = new GobjCaller[0];
 
         /// <summary>
         /// whether or not the current thread is the same thread as what the game state is running on
@@ -102,16 +103,15 @@ namespace Nent
                 Debug.LogException(e, "GameState.PreUpdate");
             }
 
-// ReSharper disable once ForCanBeConvertedToForeach for is faster with lists
-            for (int i = 0; i < _gUpdates.Count; i++)
+            foreach(var caller in _gUpdates)
             {
                 try
                 {
-                    _gUpdates[i].Method();
+                    caller.Method();
                 }
                 catch (Exception e)
                 {
-                    Debug.LogException(e, "Object {0}", _gUpdates[i].Object.Name);
+                    Debug.LogException(e, "Object {0}", caller.Object.Name);
                 }
             }
 
@@ -130,16 +130,15 @@ namespace Nent
                 t.RunCoroutines();
             }
 
-// ReSharper disable once ForCanBeConvertedToForeach for is faster with lists
-            for (int i = 0; i < _gLUpdates.Count; i++)
+            foreach(var caller in _gLUpdates)
             {
                 try
                 {
-                    _gLUpdates[i].Method();
+                    caller.Method();
                 }
                 catch (Exception e)
                 {
-                    Debug.LogException(e, "Object {0}", _gLUpdates[i].Object.Name);
+                    Debug.LogException(e, "Object {0}", caller.Object.Name);
                 }
             }
 
@@ -264,19 +263,19 @@ namespace Nent
                 Array.Resize(ref _gameObjects, _gameObjects.Length - remC);
             }
 
-            _gUpdates.RemoveAll(g => g.Object == gameObject);
-            _gLUpdates.RemoveAll(g => g.Object == gameObject);
+            _gUpdates =  _gUpdates.RemoveAll(g => g.Object == gameObject);
+            _gLUpdates = _gLUpdates.RemoveAll(g => g.Object == gameObject);
         }
 
         private readonly List<GameObject> _gameObjectsToCleanup = new List<GameObject>();
 
         internal void SubscribeComponent(Component component, GameObject sender)
         {
-            SubscribeComponentMethod("Update", component, sender, _gUpdates);
-            SubscribeComponentMethod("LateUpdate", component, sender, _gLUpdates);
+            SubscribeComponentMethod("Update", component, sender, ref _gUpdates);
+            SubscribeComponentMethod("LateUpdate", component, sender, ref _gLUpdates);
         }
 
-        private void SubscribeComponentMethod(string method, Component component, GameObject sender, List<GobjCaller> callers)
+        private void SubscribeComponentMethod(string method, Component component, GameObject sender, ref GobjCaller[] callers)
         {
             var ctype = component.GetType();
 
@@ -285,7 +284,7 @@ namespace Nent
             if (uinfo == null) return;
             if (uinfo.DeclaringType == ctype)
             {
-                callers.Add(new GobjCaller
+                callers = callers.Add(new GobjCaller
                 {
                     Method = Delegate.CreateDelegate(typeof(Action), component, uinfo) as Action,
                     Object = sender,

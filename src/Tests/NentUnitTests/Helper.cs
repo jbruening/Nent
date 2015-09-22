@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nent;
 
 namespace NentUnitTests
 {
@@ -24,6 +25,33 @@ namespace NentUnitTests
                 }
                 Thread.Sleep(10);
             }
+        }
+
+        /// <summary>
+        /// similar to waituntil, but throws if func returns false
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="waitTime"></param>
+        public static void Ensure(Func<bool> func, double waitTime = 2)
+        {
+            var watch = new Stopwatch();
+            waitTime *= 1000;
+            watch.Start();
+            while (func())
+            {
+                if (watch.ElapsedMilliseconds >= waitTime)
+                    return;
+                Thread.Sleep(10);
+            }
+            Assert.Fail("Returned false at some point when it shouldn't have");
+        }
+
+        public static T AddInvoke<T>(GameObject gobj) where T : Component
+        {
+            T ret = null;
+            gobj.GameState.InvokeIfRequired(() => { ret = gobj.AddComponent<T>(); });
+            WaitUntil(() => ret != null);
+            return ret;
         }
     }
 }
