@@ -272,27 +272,20 @@ namespace Nent
 
         internal void SubscribeComponent(Component component, GameObject sender)
         {
+            SubscribeComponentMethod("Update", component, sender, _gUpdates);
+            SubscribeComponentMethod("LateUpdate", component, sender, _gLUpdates);
+        }
+
+        private void SubscribeComponentMethod(string method, Component component, GameObject sender, List<GobjCaller> callers)
+        {
             var ctype = component.GetType();
 
             var uinfo = ctype
-                .GetMethod("Update", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic);
+                .GetMethod(method, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic);
             if (uinfo == null) return;
             if (uinfo.DeclaringType == ctype)
             {
-                _gUpdates.Add(new GobjCaller
-                {
-                    Method = Delegate.CreateDelegate(typeof(Action), component, uinfo) as Action,
-                    Object = sender,
-                    Component = component
-                });
-            }
-
-            var luinfo = ctype
-                .GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic);
-            if (luinfo == null) return;
-            if (luinfo.DeclaringType == ctype)
-            {
-                _gLUpdates.Add(new GobjCaller
+                callers.Add(new GobjCaller
                 {
                     Method = Delegate.CreateDelegate(typeof(Action), component, uinfo) as Action,
                     Object = sender,
