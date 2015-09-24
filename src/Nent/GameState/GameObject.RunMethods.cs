@@ -30,22 +30,6 @@ namespace Nent
                 components[i].InternalOnDestroyCall();
             }
         }
-
-        internal void RunCoroutines()
-        {
-            for (var i = 0; i < components.Count; i++)
-            {
-                var c = components[i];
-                try
-                {
-                    c.RunCoroutines();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e, "RunCoroutine {0}", Name);
-                }
-            }
-        }
     }
 
 // ReSharper restore ForCanBeConvertedToForeach

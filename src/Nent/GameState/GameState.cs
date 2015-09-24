@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Collections.Generic;
-using Nent.Extensions;
+using Nent.Manager;
 
 namespace Nent
 {
@@ -30,15 +28,9 @@ namespace Nent
         private GameObject[] _gameObjects;
         private IStateContainer _container;
 
-        private struct GobjCaller
-        {
-            public Component Component;
-            public GameObject Object;
-            public Action Method;
-        }
-
-        private GobjCaller[] _gUpdates = new GobjCaller[0];
-        private GobjCaller[] _gLUpdates = new GobjCaller[0];
+        private readonly ComponentManager _updateManager = new ComponentManager("Update");
+        private readonly ComponentManager _lateUpdateManager = new ComponentManager("LateUpdate");
+        private readonly ComponentManager _routineManager = new ComponentManager("RunCoroutines", false);
 
         /// <summary>
         /// whether or not the current thread is the same thread as what the game state is running on
@@ -94,63 +86,17 @@ namespace Nent
                 _queuedStarts.Dequeue().InternalStartCall();
             }
 
-            try
-            {
-                PreUpdate.Raise();
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e, "GameState.PreUpdate");
-            }
+            TryRaise(PreUpdate, "GameState.PreUpdate");
 
-            foreach(var caller in _gUpdates)
-            {
-                try
-                {
-                    caller.Method();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e, "Object {0}", caller.Object.Name);
-                }
-            }
+            _updateManager.Run();
 
-            try
-            {
-                Update.Raise();
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e, "GameState.Update");
-            }
+            TryRaise(Update, "GameState.Update");
 
-            foreach (GameObject t in _gameObjects)
-            {
-                if (t == null) continue;
-                t.RunCoroutines();
-            }
+            _routineManager.Run();
 
-            foreach(var caller in _gLUpdates)
-            {
-                try
-                {
-                    caller.Method();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e, "Object {0}", caller.Object.Name);
-                }
-            }
+            _lateUpdateManager.Run();
 
-            try
-            {
-                LateUpdate.Raise();
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e, "GameState.LateUpdate");
-            }
-
+            TryRaise(LateUpdate, "GameState.LateUpdate");
 
             Action[] invokes;
             lock (_invokeLocker)
@@ -178,6 +124,19 @@ namespace Nent
                 g.DestroyNow();
             }
             _gameObjectsToCleanup.Clear();
+        }
+
+        private void TryRaise(Action action, string error)
+        {
+            try
+            {
+                if (action != null)
+                    action();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, error);
+            }
         }
 
         /// <summary>
@@ -263,40 +222,25 @@ namespace Nent
                 Array.Resize(ref _gameObjects, _gameObjects.Length - remC);
             }
 
-            _gUpdates =  _gUpdates.RemoveAll(g => g.Object == gameObject);
-            _gLUpdates = _gLUpdates.RemoveAll(g => g.Object == gameObject);
+            _updateManager.RemoveAll(gameObject);
+            _routineManager.RemoveAll(gameObject);
+            _lateUpdateManager.RemoveAll(gameObject);
         }
 
         private readonly List<GameObject> _gameObjectsToCleanup = new List<GameObject>();
 
         internal void SubscribeComponent(Component component, GameObject sender)
         {
-            SubscribeComponentMethod("Update", component, sender, ref _gUpdates);
-            SubscribeComponentMethod("LateUpdate", component, sender, ref _gLUpdates);
-        }
-
-        private void SubscribeComponentMethod(string method, Component component, GameObject sender, ref GobjCaller[] callers)
-        {
-            var ctype = component.GetType();
-
-            var uinfo = ctype
-                .GetMethod(method, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic);
-            if (uinfo == null) return;
-            if (uinfo.DeclaringType == ctype)
-            {
-                callers = callers.Add(new GobjCaller
-                {
-                    Method = Delegate.CreateDelegate(typeof(Action), component, uinfo) as Action,
-                    Object = sender,
-                    Component = component
-                });
-            }
+            _updateManager.TryAdd(component, sender);
+            _routineManager.TryAdd(component, sender);
+            _lateUpdateManager.TryAdd(component, sender);
         }
 
         internal void UnsubscribeComponent(Component component, GameObject sender)
         {
-            _gUpdates.RemoveAll(g => g.Object == sender && g.Component == component);
-            _gLUpdates.RemoveAll(g => g.Object == sender && g.Component == component);
+            _updateManager.Remove(component);
+            _routineManager.Remove(component);
+            _lateUpdateManager.Remove(component);
         }
 
         internal event Action PreUpdate;

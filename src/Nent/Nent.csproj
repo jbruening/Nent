@@ -54,6 +54,7 @@
     <Compile Include="GameState\GameObject.RunMethods.cs" />
     <Compile Include="GameState\GameState.cs" />
     <Compile Include="Jetbrains.Annotations.cs" />
+    <Compile Include="Manager\ComponentManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Extensions\SlimmathExtensions.cs" />
