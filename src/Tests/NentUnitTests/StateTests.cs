@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nent;
+using NentUnitTests.Components;
 
 namespace NentUnitTests
 {
@@ -8,6 +8,7 @@ namespace NentUnitTests
     public class StateTests
     {
         private GameState _state;
+        private GameObject _gobj;
 
         [TestInitialize]
         public void TestStartup()
@@ -15,6 +16,8 @@ namespace NentUnitTests
             Debug.logger = new TestLogger();
             _state = new GameState();
             _state.StartOnOtherThread();
+
+            _gobj = Helper.CreateInvoke(_state);
         }
         [TestCleanup]
         public void TestCleanup()
@@ -25,8 +28,7 @@ namespace NentUnitTests
         [TestMethod]
         public void CreateTest()
         {
-            var gobj = Helper.CreateInvoke(_state);
-            var test = Helper.AddInvoke<TestComponent>(gobj);
+            var test = Helper.AddInvoke<TestComponent>(_gobj);
 
             Helper.WaitUntil(() => test != null);
             Helper.WaitUntil(() => test.LateUpdateCalled);
@@ -35,8 +37,7 @@ namespace NentUnitTests
         [TestMethod]
         public void ChildTest()
         {
-            var gobj = Helper.CreateInvoke(_state);
-            var test = Helper.AddInvoke<ChildTestComponent>(gobj);
+            var test = Helper.AddInvoke<ChildTestComponent>(_gobj);
 
             Helper.WaitUntil(() => test != null);
             Helper.WaitUntil(() => test.ChildUpdateCalled);
@@ -45,8 +46,7 @@ namespace NentUnitTests
         [TestMethod]
         public void YieldTest()
         {
-            var gobj = Helper.CreateInvoke(_state);
-            var test = Helper.AddInvoke<TestYielder>(gobj);
+            var test = Helper.AddInvoke<TestYielder>(_gobj);
 
             Helper.WaitUntil(() => test != null);
             Assert.IsTrue(test.BeforeStuff);
@@ -57,73 +57,12 @@ namespace NentUnitTests
         [TestMethod]
         public void DestroyTest()
         {
-            var gobj = Helper.CreateInvoke(_state);
-            var test = Helper.AddInvoke<TestComponent>(gobj);
+            var test = Helper.AddInvoke<TestComponent>(_gobj);
 
-            _state.InvokeIfRequired(gobj.Destroy);
-            Helper.WaitUntil(() => gobj.IsDisposed);
+            _state.InvokeIfRequired(_gobj.Destroy);
+            Helper.WaitUntil(() => _gobj.IsDisposed);
             test.LateUpdateCalled = false;
             Helper.Ensure(() => !test.LateUpdateCalled);
-        }
-
-        class TestComponent : Component
-        {
-            private bool _awakeCalled;
-            protected override void Awake()
-            {
-                _awakeCalled = true;
-            }
-
-            private bool _startCalled;
-            protected override void Start()
-            {
-                Assert.IsTrue(_awakeCalled);
-                _startCalled = true;
-            }
-
-            protected bool UpdateCalled;
-            protected override void Update()
-            {
-                Assert.IsTrue(_startCalled);
-                UpdateCalled = true;
-            }
-
-            public bool LateUpdateCalled;
-            protected override void LateUpdate()
-            {
-                Assert.IsTrue(UpdateCalled);
-                LateUpdateCalled = true;
-                UpdateCalled = false;
-            }
-        }
-
-        class ChildTestComponent : TestComponent
-        {
-            public bool ChildUpdateCalled;
-            protected override void Update()
-            {
-                base.Update();
-                Assert.IsTrue(UpdateCalled);
-                ChildUpdateCalled = true;
-            }
-        }
-
-        class TestYielder : Component
-        {
-            protected override void Awake()
-            {
-                StartCoroutine(DoStuff());
-            }
-
-            private IEnumerator DoStuff()
-            {
-                BeforeStuff = true;
-                yield return new WaitForSeconds(GameState, 1);
-                AfterStuff = true;
-            }
-
-            public bool AfterStuff { get; set; }
-            public bool BeforeStuff { get; set; }
         }
     }
 }
