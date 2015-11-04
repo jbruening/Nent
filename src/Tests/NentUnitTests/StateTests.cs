@@ -39,6 +39,22 @@ namespace NentUnitTests
         }
 
         [TestMethod]
+        public void ChildTest()
+        {
+            GameObject gobj = null;
+            _state.InvokeIfRequired(() => gobj = _state.CreateNewGameObject());
+            Helper.WaitUntil(() => gobj != null);
+            ChildTestComponent test = null;
+            _state.InvokeIfRequired(() =>
+            {
+                test = gobj.AddComponent<ChildTestComponent>();
+            });
+
+            Helper.WaitUntil(() => test != null);
+            Helper.WaitUntil(() => test.ChildUpdateCalled);
+        }
+
+        [TestMethod]
         public void YieldTest()
         {
             GameObject gobj = null;
@@ -85,19 +101,30 @@ namespace NentUnitTests
                 _startCalled = true;
             }
 
-            private bool _updateCalled;
+            protected bool UpdateCalled;
             protected override void Update()
             {
                 Assert.IsTrue(_startCalled);
-                _updateCalled = true;
+                UpdateCalled = true;
             }
 
             public bool LateUpdateCalled;
             protected override void LateUpdate()
             {
-                Assert.IsTrue(_updateCalled);
+                Assert.IsTrue(UpdateCalled);
                 LateUpdateCalled = true;
-                _updateCalled = false;
+                UpdateCalled = false;
+            }
+        }
+
+        class ChildTestComponent : TestComponent
+        {
+            public bool ChildUpdateCalled;
+            protected override void Update()
+            {
+                base.Update();
+                Assert.IsTrue(UpdateCalled);
+                ChildUpdateCalled = true;
             }
         }
 
