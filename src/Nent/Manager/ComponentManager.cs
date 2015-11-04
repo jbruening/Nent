@@ -41,7 +41,7 @@ namespace Nent.Manager
                 .GetMethod(_methodName, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public);
             if (info == null) return;
             if (_requireDeclaration)
-                if (info.DeclaringType != ctype) return;
+                if (info.DeclaringType == typeof(Component)) return;
 
             _callees = _callees.Add(new Callee(component, gobj, Delegate.CreateDelegate(typeof(Action), component, info) as Action));
         }
