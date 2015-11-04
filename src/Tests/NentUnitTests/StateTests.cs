@@ -25,14 +25,8 @@ namespace NentUnitTests
         [TestMethod]
         public void CreateTest()
         {
-            GameObject gobj = null;
-            _state.InvokeIfRequired(() => gobj = _state.CreateNewGameObject());
-            Helper.WaitUntil(() => gobj != null);
-            TestComponent test = null;
-            _state.InvokeIfRequired(() =>
-            {
-                test = gobj.AddComponent<TestComponent>();
-            });
+            var gobj = Helper.CreateInvoke(_state);
+            var test = Helper.AddInvoke<TestComponent>(gobj);
 
             Helper.WaitUntil(() => test != null);
             Helper.WaitUntil(() => test.LateUpdateCalled);
@@ -41,14 +35,8 @@ namespace NentUnitTests
         [TestMethod]
         public void ChildTest()
         {
-            GameObject gobj = null;
-            _state.InvokeIfRequired(() => gobj = _state.CreateNewGameObject());
-            Helper.WaitUntil(() => gobj != null);
-            ChildTestComponent test = null;
-            _state.InvokeIfRequired(() =>
-            {
-                test = gobj.AddComponent<ChildTestComponent>();
-            });
+            var gobj = Helper.CreateInvoke(_state);
+            var test = Helper.AddInvoke<ChildTestComponent>(gobj);
 
             Helper.WaitUntil(() => test != null);
             Helper.WaitUntil(() => test.ChildUpdateCalled);
@@ -57,14 +45,9 @@ namespace NentUnitTests
         [TestMethod]
         public void YieldTest()
         {
-            GameObject gobj = null;
-            _state.InvokeIfRequired(() => gobj = _state.CreateNewGameObject());
-            Helper.WaitUntil(() => gobj != null);
-            TestYielder test = null;
-            _state.InvokeIfRequired(() =>
-            {
-                test = gobj.AddComponent<TestYielder>();
-            });
+            var gobj = Helper.CreateInvoke(_state);
+            var test = Helper.AddInvoke<TestYielder>(gobj);
+
             Helper.WaitUntil(() => test != null);
             Assert.IsTrue(test.BeforeStuff);
             Assert.IsFalse(test.AfterStuff);
@@ -74,13 +57,10 @@ namespace NentUnitTests
         [TestMethod]
         public void DestroyTest()
         {
-            GameObject gobj = null;
-            _state.InvokeIfRequired(() => gobj = _state.CreateNewGameObject());
-            Helper.WaitUntil(() => gobj != null);
-            
+            var gobj = Helper.CreateInvoke(_state);
             var test = Helper.AddInvoke<TestComponent>(gobj);
 
-            _state.InvokeIfRequired(() => gobj.Destroy());
+            _state.InvokeIfRequired(gobj.Destroy);
             Helper.WaitUntil(() => gobj.IsDisposed);
             test.LateUpdateCalled = false;
             Helper.Ensure(() => !test.LateUpdateCalled);

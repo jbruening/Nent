@@ -46,6 +46,14 @@ namespace NentUnitTests
             Assert.Fail("Returned false at some point when it shouldn't have");
         }
 
+        public static GameObject CreateInvoke(GameState state)
+        {
+            GameObject gobj = null;
+            state.InvokeIfRequired(() => gobj = state.CreateNewGameObject());
+            WaitUntil(() => gobj != null);
+            return gobj;
+        }
+
         public static T AddInvoke<T>(GameObject gobj) where T : Component
         {
             T ret = null;
