@@ -51,6 +51,7 @@
     <Compile Include="GameState\Component.cs" />
     <Compile Include="GameState\GameObject.Component.cs" />
     <Compile Include="GameState\GameObject.cs" />
+    <Compile Include="GameState\GameObject.Properties.cs" />
     <Compile Include="GameState\GameObject.RunMethods.cs" />
     <Compile Include="GameState\GameState.cs" />
     <Compile Include="Jetbrains.Annotations.cs" />
