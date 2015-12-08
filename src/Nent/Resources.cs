@@ -60,8 +60,11 @@ namespace Nent
         /// <param name="state">state that the gameobject will be in</param>
         /// <param name="position"> </param>
         /// <param name="rotation"> </param>
+        /// <param name="beforeAwakes">action to run after the gameobject is deserialized, but before components have their Awake run</param>
         /// <returns></returns>
-        public static GameObject Load(string filePath, GameState state, Vector3? position = null, Quaternion? rotation = null)
+        public static GameObject Load(string filePath, GameState state, 
+            Vector3? position = null, Quaternion? rotation = null, 
+            Action<GameObject> beforeAwakes = null)
         {
             var dser = state.CreateNewGameObject();
             var awakes = new List<Component>();
@@ -111,6 +114,11 @@ namespace Nent
                 dser.Position = position.Value;
             if (rotation.HasValue)
                 dser.Rotation = rotation.Value;
+
+            if (beforeAwakes != null)
+            {
+                beforeAwakes(dser);
+            }
 
             foreach (var awake in awakes)
                 if (awake != null) awake.InternalAwakeCall();
