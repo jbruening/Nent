@@ -8,13 +8,28 @@ namespace Nent.Extensions
 {
     static class CollectionExtensions
     {
-        public static T[] RemoveAll<T>(this T[] source, Predicate<T> match)
+        public static T[] RemoveAll<T, C>(this T[] source, Func<T, C> match, C matcher)
+             where C : class 
         {
             var dest = new List<T>(source.Length);
             foreach (var t in source)
             {
-                if (!match(t))
+                if (match(t) != matcher)
                     dest.Add(t);
+            }
+            return dest.ToArray();
+        }
+
+        public static T[] RemoveAll<T, C>(this T[] source, Func<T, C> match, C matcher, List<T> removed)
+            where C : class 
+        {
+            var dest = new List<T>(source.Length);
+            foreach (var t in source)
+            {
+                if (match(t) != matcher)
+                    dest.Add(t);
+                else
+                    removed.Add(t);
             }
             return dest.ToArray();
         }

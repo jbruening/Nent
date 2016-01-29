@@ -40,6 +40,12 @@ namespace Nent
             get { return Thread.CurrentThread != _createdThread; }
         }
 
+        internal void AssertThread(string error)
+        {
+            if (InvokeRequired)
+                throw new ThreadStateException(error);
+        }
+
         public void StartOnOtherThread()
         {
             _createdThread = new Thread(CreateThreadStart);
@@ -172,8 +178,7 @@ namespace Nent
         /// </exception>
         public GameObject CreateNewGameObject()
         {
-            if (InvokeRequired)
-                throw new ThreadStateException("Cannot make gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
+            AssertThread("Cannot make gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
             int id = -1;
             for (int i = 0; i < _gameObjects.Length; i++)
             {
@@ -196,8 +201,7 @@ namespace Nent
 
         internal void RemoveObject(GameObject gameObject)
         {
-            if (InvokeRequired)
-                throw new ThreadStateException("Cannot destroy gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
+            AssertThread("Cannot destroy gameobjects not on the gamestate thread. Use GameState.InvokeIfRequired.");
 
             if (gameObject.Id == -1)
             {
@@ -241,6 +245,20 @@ namespace Nent
             _updateManager.Remove(component);
             _routineManager.Remove(component);
             _lateUpdateManager.Remove(component);
+        }
+
+        internal void SetEnabled(Component component, bool state)
+        {
+            if (state)
+            {
+                _updateManager.Enable(component);
+                _lateUpdateManager.Enable(component);
+            }
+            else
+            {
+                _updateManager.Disable(component);
+                _lateUpdateManager.Disable(component);
+            }
         }
 
         internal event Action PreUpdate;

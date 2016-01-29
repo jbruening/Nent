@@ -95,8 +95,7 @@ namespace Nent
 
         private Component InitialAddComponent(Type componentType)
         {
-            if (GameState.InvokeRequired)
-                throw new ThreadStateException("Cannot add components not on the gamestate thread. Use GameState.InvokeIfRequired.");
+            GameState.AssertThread("Cannot add components not on the gamestate thread. Use GameState.InvokeIfRequired.");
 
             var component = Activator.CreateInstance(componentType) as Component;
 
@@ -202,8 +201,7 @@ namespace Nent
         /// <param name="target"></param>
         public void RemoveComponent(Component target)
         {
-            if (GameState.InvokeRequired)
-                throw new ThreadStateException("Cannot add components not on the gamestate thread. Use GameState.InvokeIfRequired.");
+            GameState.AssertThread("Cannot remove components not on the gamestate thread. Use GameState.InvokeIfRequired.");
 
             var ind = components.FindIndex(c => object.ReferenceEquals(c, target));
 

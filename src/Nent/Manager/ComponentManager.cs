@@ -26,6 +26,7 @@ namespace Nent.Manager
         }
 
         private Callee[] _callees = new Callee[0];
+        private readonly List<Callee> _disabled = new List<Callee>();
 
         public ComponentManager(string methodName, bool requireDeclaration = true)
         {
@@ -63,44 +64,30 @@ namespace Nent.Manager
 
         public void RemoveAll(GameObject gobj)
         {
-            _callees = _callees.RemoveAll(callee => callee.Object == gobj);
+            _callees = _callees.RemoveAll(c => c.Object, gobj);
+            _disabled.RemoveAll(c => c.Object == gobj);
         }
 
         public void Remove(Component component)
         {
-            _callees = _callees.RemoveAll(callee => callee.Component == component);
+            _callees = _callees.RemoveAll(c => c.Component, component);
+            _disabled.RemoveAll(c => c.Component == component);
         }
 
-        #region remove helper methods
-        public static void RemoveAll(GameObject gobj, ref Component[] components, ref GameObject[] objects)
+        public void Enable(Component component)
         {
-            var gobjs = new List<GameObject>(objects.Length);
-            var comps = new List<Component>(components.Length);
-            for (var i = 0; i < gobjs.Count; i++)
+            for (int i = _disabled.Count - 1; i >= 0; i--)
             {
-                if (ReferenceEquals(objects[i], gobj)) continue;
-                gobjs.Add(gobjs[i]);
-                comps.Add(comps[i]);
+                var idx = _disabled[i];
+                if (idx.Component != component) continue;
+                
+                _disabled.RemoveAt(i);
+                _callees = _callees.Add(idx);
             }
-
-            objects = gobjs.ToArray();
-            components = comps.ToArray();
         }
-
-        public static void Remove(Component component, ref Component[] components, ref GameObject[] objects)
+        public void Disable(Component component)
         {
-            var gobjs = new List<GameObject>(objects.Length);
-            var comps = new List<Component>(components.Length);
-            for (var i = 0; i < gobjs.Count; i++)
-            {
-                if (ReferenceEquals(component, components[i])) continue;
-                gobjs.Add(gobjs[i]);
-                comps.Add(comps[i]);
-            }
-
-            objects = gobjs.ToArray();
-            components = comps.ToArray();
+            _callees = _callees.RemoveAll(c => c.Component, component, _disabled);
         }
-        #endregion
     }
 }

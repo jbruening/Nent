@@ -101,6 +101,18 @@ namespace Nent
         internal void InternalOnDestroyCall() { try { OnDestroy(); } catch (Exception e) { Debug.LogException(e, "Object {0}", SafeGameObjectName); } }
         protected virtual void OnDestroy() { }
 
+        private bool _enabled = true;
+        public bool Enabled
+        {
+            get { return _enabled; }
+            set
+            {
+                GameObject.GameState.AssertThread("Enabled property must be set on the gamestate thread. Use invokeifrequired if necessary");
+                GameObject.GameState.SetEnabled(this, value);
+                _enabled = value;
+            }
+        }
+
         internal void Dispose()
         {
             try

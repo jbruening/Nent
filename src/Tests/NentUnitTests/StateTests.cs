@@ -55,6 +55,25 @@ namespace NentUnitTests
         }
 
         [TestMethod]
+        public void EnabledTest()
+        {
+            var test = Helper.AddInvoke<TestComponent>(_gobj);
+
+            Helper.WaitUntil(() => test.LateUpdateCalled);
+            _state.InvokeIfRequired(() =>
+            {
+                test.Enabled = false;
+                test.LateUpdateCalled = false;
+            });
+            Helper.WaitUntil(() => !test.LateUpdateCalled);
+            _state.InvokeIfRequired(() =>
+            {
+                test.Enabled = true;
+            });
+            Helper.WaitUntil(() => test.LateUpdateCalled);
+        }
+
+        [TestMethod]
         public void DestroyTest()
         {
             var test = Helper.AddInvoke<TestComponent>(_gobj);
