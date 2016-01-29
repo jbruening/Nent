@@ -102,6 +102,9 @@ namespace Nent
         protected virtual void OnDestroy() { }
 
         private bool _enabled = true;
+        /// <summary>
+        /// Whether or not this component will have Update and LateUpdate run on it
+        /// </summary>
         public bool Enabled
         {
             get { return _enabled; }
