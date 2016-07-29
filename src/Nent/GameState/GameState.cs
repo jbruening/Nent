@@ -8,8 +8,6 @@ namespace Nent
 {
     public class GameState
     {
-        private const int LoopTightness = 3;
-
         readonly Stopwatch _watch = new Stopwatch();
         private Thread _createdThread;
         bool _quit = true;
@@ -57,6 +55,25 @@ namespace Nent
             Start();
         }
 
+        /// <summary>
+        /// Set to true to perform fixed time step updates, rather than variable ones.
+        /// Only works if set before calling Start
+        /// </summary>
+        public bool FixedStep { get; set; }
+        /// <summary>
+        /// maximum number of fixed steps that can accumulate. 0 disables. Default is 10.
+        /// If the queue for fixed steps exceeds this length, then the system will perform a loop 
+        /// where the DeltaTime is MaxFixedStepQueue * frameTime in an attempt to catch up.
+        /// This setting has no effect when FixedStep is false, as in that mode the system
+        /// runs at a variable rate, maxed out to frameTime
+        /// </summary>
+        public int MaxFixedStepQueue { get; set; }
+
+        public GameState()
+        {
+            MaxFixedStepQueue = 10;
+        }
+
         public void Start(double frameTime = 0.02d)
         {
             _gameObjects = new GameObject[10];
@@ -69,23 +86,66 @@ namespace Nent
 
             _quit = false;
 
+            if (FixedStep)
+                FixedStepLoop(frameTime);
+            else
+                MaxRateLoop(frameTime);
+        }
+
+        private void FixedStepLoop(double frameTime)
+        {
+            var currentTime = _watch.Elapsed.TotalSeconds;
+            var accumulator = 0d;
+            var t = 0d;
+
             while (!_quit)
             {
-                if (_watch.Elapsed.TotalSeconds - Time >= _frameTime)
-                    Loop();
-                Thread.Sleep(LoopTightness);
+                var newTime = _watch.Elapsed.TotalSeconds;
+                var ft = newTime - currentTime;
+                currentTime = newTime;
+
+                accumulator += ft;
+                
+                //we're going way too slow. jump to correct time
+                if (MaxFixedStepQueue > 0 && accumulator >= frameTime*MaxFixedStepQueue)
+                {
+                    var ftMmfsq = frameTime*MaxFixedStepQueue;
+                    Loop(t, ftMmfsq);
+                    accumulator -= ftMmfsq;
+                    t += ftMmfsq;
+                }
+
+                while(accumulator >= frameTime)
+                {
+                    Loop(t, frameTime);
+                    accumulator -= frameTime;
+                    t += frameTime;
+                }
+
+                Thread.Yield();
+            }
+        }
+
+        private void MaxRateLoop(double frameTime)
+        {
+            while (!_quit)
+            {
+                var newTime = _watch.Elapsed.TotalSeconds;
+                var dt = newTime - Time;
+                if (dt >= frameTime)
+                    Loop(newTime, dt);
+
+                Thread.Yield();
             }
         }
 
         public double Time { get; private set; }
         public double DeltaTime { get; private set; }
-        internal double PreviousFrameTime { get; private set; }
 
-        private void Loop()
+        private void Loop(double newTime, double deltaTime)
         {
-            PreviousFrameTime = Time;
-            Time = _watch.Elapsed.TotalSeconds;
-            DeltaTime = Time - PreviousFrameTime;
+            Time = newTime;
+            DeltaTime = deltaTime;
 
             while (_queuedStarts.Count > 0)
             {
