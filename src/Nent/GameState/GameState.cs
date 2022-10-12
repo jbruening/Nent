@@ -296,8 +296,12 @@ namespace Nent
         internal void SubscribeComponent(Component component, GameObject sender)
         {
             _updateManager.TryAdd(component, sender);
-            _routineManager.TryAdd(component, sender);
             _lateUpdateManager.TryAdd(component, sender);
+        }
+
+        internal void TrySubscribeCoroutines(Component component, GameObject sender)
+        {
+            _routineManager.TryAdd(component, sender, checkForDuplicates: true);
         }
 
         internal void UnsubscribeComponent(Component component, GameObject sender)

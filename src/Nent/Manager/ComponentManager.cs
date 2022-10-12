@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Nent.Extensions;
 
@@ -34,7 +35,7 @@ namespace Nent.Manager
             _requireDeclaration = requireDeclaration;
         }
 
-        public void TryAdd(Component component, GameObject gobj)
+        public void TryAdd(Component component, GameObject gobj, bool checkForDuplicates = false)
         {
             var ctype = component.GetType();
 
@@ -43,6 +44,9 @@ namespace Nent.Manager
             if (info == null) return;
             if (_requireDeclaration)
                 if (info.DeclaringType == typeof(Component)) return;
+
+            if (checkForDuplicates && _callees.Any(c => c.Component == component))
+                return;
 
             _callees = _callees.Add(new Callee(component, gobj, Delegate.CreateDelegate(typeof(Action), component, info) as Action));
         }

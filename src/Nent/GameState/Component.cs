@@ -46,11 +46,17 @@ namespace Nent
         /// <returns></returns>
         public Coroutine StartCoroutine(IEnumerator routine)
         {
+            if (!hasSubscribedCoroutines)
+            {
+                hasSubscribedCoroutines = true;
+                GameState.TrySubscribeCoroutines(this, _gameObject);
+            }
             routine.MoveNext();
             _shouldRunNextFrame.Add(routine);
             return new Coroutine(routine);
         }
 
+        private bool hasSubscribedCoroutines = false;
         List<IEnumerator> _unblockedCoroutines = new List<IEnumerator>();
         List<IEnumerator> _shouldRunNextFrame = new List<IEnumerator>();
         private GameObject _gameObject;
