@@ -1,0 +1,6 @@
+[submodule "lib/YamlSerializer-Fork"]
+	path = lib/YamlSerializer-Fork
+	url = https://github.com/jbruening/YamlSerializer-Fork
+[submodule "lib/slimmath"]
+	path = lib/slimmath
+	url = https://github.com/jbruening/slimmath.git

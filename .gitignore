@@ -98,7 +98,7 @@ publish/
 FakesAssemblies/
 
 #other
-lib/
 .svn
+.vs/
 
 !/src/Nent/Debug/

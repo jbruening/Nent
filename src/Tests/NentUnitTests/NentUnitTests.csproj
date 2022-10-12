@@ -59,7 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\lib\SlimMath\SlimMathVS2010.csproj">
+    <ProjectReference Include="..\..\..\lib\slimmath\SlimMath\SlimMathVS2010.csproj">
       <Project>{820fe441-822f-4519-994b-04f1de27ff15}</Project>
       <Name>SlimMathVS2010</Name>
     </ProjectReference>

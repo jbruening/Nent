@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32611.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nent", "Nent\Nent.csproj", "{B6C353E3-1D8E-4BC6-B8BB-D2CE5E0799BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{75F95589-59F9-4463-A5C5-7A67DC2175E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimMathVS2010", "..\lib\SlimMath\SlimMathVS2010.csproj", "{820FE441-822F-4519-994B-04F1DE27FF15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimMathVS2010", "..\lib\slimmath\SlimMath\SlimMathVS2010.csproj", "{820FE441-822F-4519-994B-04F1DE27FF15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlSerializer", "..\lib\YamlSerializer-Fork\YamlSerializer\YamlSerializer.csproj", "{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{00F6EB02-0844-449F-A247-68E623DBBD14}"
 EndProject
@@ -31,6 +33,10 @@ Global
 		{3EC3837F-62B7-4769-A6D2-4733EB2E1D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EC3837F-62B7-4769-A6D2-4733EB2E1D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EC3837F-62B7-4769-A6D2-4733EB2E1D0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,5 +44,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{820FE441-822F-4519-994B-04F1DE27FF15} = {75F95589-59F9-4463-A5C5-7A67DC2175E0}
 		{3EC3837F-62B7-4769-A6D2-4733EB2E1D0E} = {00F6EB02-0844-449F-A247-68E623DBBD14}
+		{AD9F3A60-C492-4823-8F24-6F4854E7CBF5} = {75F95589-59F9-4463-A5C5-7A67DC2175E0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED2613BC-6C9E-4766-B9BE-7DCCB5ACF283}
 	EndGlobalSection
 EndGlobal

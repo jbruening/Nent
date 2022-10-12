@@ -34,9 +34,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="YamlSerializer">
-      <HintPath>..\..\lib\YamlSerializer.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Coroutine\Coroutine.cs" />
@@ -61,9 +58,13 @@
     <Compile Include="Extensions\SlimmathExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\SlimMath\SlimMathVS2010.csproj">
+    <ProjectReference Include="..\..\lib\slimmath\SlimMath\SlimMathVS2010.csproj">
       <Project>{820fe441-822f-4519-994b-04f1de27ff15}</Project>
       <Name>SlimMathVS2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\lib\YamlSerializer-Fork\YamlSerializer\YamlSerializer.csproj">
+      <Project>{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}</Project>
+      <Name>YamlSerializer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
