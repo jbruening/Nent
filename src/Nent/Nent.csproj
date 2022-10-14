@@ -15,11 +15,25 @@
 	<PackageTags>entity component ecs</PackageTags>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<!--referenced project nuget inclusion helper-->
+	<!--see https://stackoverflow.com/questions/16173568/build-nuget-package-automatically-including-referenced-dependencies/64583406#64583406-->
+	<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 	
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\slimmath\SlimMath\SlimMathVS2010.csproj" />
-    <ProjectReference Include="..\..\lib\YamlSerializer-Fork\YamlSerializer\YamlSerializer.csproj" />
+    <ProjectReference Include="..\..\lib\slimmath\SlimMath\SlimMathVS2010.csproj">
+		<ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+		<IncludeAssets>SlimMath.dll</IncludeAssets>
+	</ProjectReference>
+    <ProjectReference Include="..\..\lib\YamlSerializer-Fork\YamlSerializer\YamlSerializer.csproj">
+		<ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+		<IncludeAssets>YamlSerializer.dll</IncludeAssets>
+	</ProjectReference>
   </ItemGroup>
 	
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+    </ItemGroup>
+  </Target>
 </Project>
