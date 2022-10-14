@@ -1,78 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B6C353E3-1D8E-4BC6-B8BB-D2CE5E0799BD}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Nent</RootNamespace>
-    <AssemblyName>Nent</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <BaseOutputPath></BaseOutputPath>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  
+	<PackageId>NentEngine</PackageId>
+	<Version>1.0.0</Version>
+	<Authors>jbruening</Authors>
+	<Description>.Net entity-component library. This is basically the game engine that is built into PNet</Description>
+	<PackageProjectUrl>https://github.com/jbruening/Nent</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/jbruening/Nent</RepositoryUrl>
+	<PackageTags>entity component ecs</PackageTags>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Release\Nent.XML</DocumentationFile>
-  </PropertyGroup>
+	
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\..\lib\slimmath\SlimMath\SlimMathVS2010.csproj" />
+    <ProjectReference Include="..\..\lib\YamlSerializer-Fork\YamlSerializer\YamlSerializer.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Coroutine\Coroutine.cs" />
-    <Compile Include="Coroutine\WaitForSeconds.cs" />
-    <Compile Include="Coroutine\YieldInstruction.cs" />
-    <Compile Include="Debug\Debug.cs" />
-    <Compile Include="Debug\DefaultConsoleLogger.cs" />
-    <Compile Include="Debug\ILogger.cs" />
-    <Compile Include="Debug\NullLogger.cs" />
-    <Compile Include="EventUtilities.cs" />
-    <Compile Include="Extensions\CollectionExtensions.cs" />
-    <Compile Include="GameState\Component.cs" />
-    <Compile Include="GameState\GameObject.Component.cs" />
-    <Compile Include="GameState\GameObject.cs" />
-    <Compile Include="GameState\GameObject.Properties.cs" />
-    <Compile Include="GameState\GameObject.RunMethods.cs" />
-    <Compile Include="GameState\GameState.cs" />
-    <Compile Include="Jetbrains.Annotations.cs" />
-    <Compile Include="Manager\ComponentManager.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources.cs" />
-    <Compile Include="Extensions\SlimmathExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\lib\slimmath\SlimMath\SlimMathVS2010.csproj">
-      <Project>{820fe441-822f-4519-994b-04f1de27ff15}</Project>
-      <Name>SlimMathVS2010</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\YamlSerializer-Fork\YamlSerializer\YamlSerializer.csproj">
-      <Project>{AD9F3A60-C492-4823-8F24-6F4854E7CBF5}</Project>
-      <Name>YamlSerializer</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+	
 </Project>
